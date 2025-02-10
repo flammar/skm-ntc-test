@@ -12,10 +12,10 @@ import java.util.function.IntUnaryOperator;
 
 public class main {
     static String filename = "file1";
-    private static FileOutputStream OUT_STREAM;
     private static IntUnaryOperator toEven = i -> i << 1;
     private static IntUnaryOperator toOdd = i -> (i << 1) + 1;
     private static Lock lock = new ReentrantLock();
+    private static Writer ps;
 
     public static void main(String[] args) throws IOException {
 
@@ -28,8 +28,7 @@ public class main {
         // длина байтового представления
         // числа формата int всегда постоянна и равна 4.
         
-        OUT_STREAM = new FileOutputStream(filename, true);
-                
+        ps = new OutputStreamWriter(new FileOutputStream(filename, true));
         Thread odds = new Thread(newWriter(toOdd, "-odd"));
         Thread evens = new Thread(newWriter(toEven, "-even"));
         Thread reader = new Thread(newReader());
@@ -41,8 +40,7 @@ public class main {
 
     private static Runnable newWriter(IntUnaryOperator intUnaryOperator, String disc) {
         return () -> {
-            try (Writer ps = new OutputStreamWriter(OUT_STREAM);
-                    Writer ps1 = new OutputStreamWriter(new FileOutputStream(filename + disc, true))) {
+            try (Writer ps1 = new OutputStreamWriter(new FileOutputStream(filename + disc, true))) {
                 Random random = new Random();
                 while (true) {
 //                    ps.println нельзя использовать так как он делает две хзаписи в файл, числа могут слепляться
