@@ -15,7 +15,7 @@ public class main {
     private static IntUnaryOperator toEven = i -> i << 1;
     private static IntUnaryOperator toOdd = i -> (i << 1) + 1;
     private static Lock lock = new ReentrantLock();
-    private static Writer ps;
+//    private static Writer ps;
 
     public static void main(String[] args) throws IOException {
 
@@ -28,9 +28,9 @@ public class main {
         // длина байтового представления
         // числа формата int всегда постоянна и равна 4.
         
-        ps = new OutputStreamWriter(new FileOutputStream(filename, true));
-        Thread odds = new Thread(newWriter(toOdd, "-odd"));
-        Thread evens = new Thread(newWriter(toEven, "-even"));
+        Writer ps = new OutputStreamWriter(new FileOutputStream(filename, true));
+        Thread odds = new Thread(newWriter(ps, toOdd, "-odd"));
+        Thread evens = new Thread(newWriter(ps, toEven, "-even"));
         Thread reader = new Thread(newReader());
         reader.start();
         odds.start();
@@ -38,7 +38,7 @@ public class main {
         evens.start();
     }
 
-    private static Runnable newWriter(IntUnaryOperator intUnaryOperator, String disc) {
+    private static Runnable newWriter(Writer ps, IntUnaryOperator intUnaryOperator, String disc) {
         return () -> {
             try (Writer ps1 = new OutputStreamWriter(new FileOutputStream(filename + disc, true))) {
                 Random random = new Random();
