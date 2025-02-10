@@ -6,12 +6,15 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.IntUnaryOperator;
 
 public class main {
     static String filename = "file1";
     private static IntUnaryOperator toEven = i -> i << 1;
     private static IntUnaryOperator toOdd = i -> (i << 1) + 1;
+    private static Lock lock = new ReentrantLock();
 
     public static void main(String[] args) throws IOException {
 
@@ -44,7 +47,10 @@ public class main {
 //                    sleep(200);
                     String str = intUnaryOperator.applyAsInt(random.nextInt()) + "\n";
                     ps1.write(str);
+                    lock.lock();
                     ps.write(str);
+                    ps.flush();
+                    lock.unlock();
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
