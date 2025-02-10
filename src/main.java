@@ -12,6 +12,7 @@ import java.util.function.IntUnaryOperator;
 
 public class main {
     static String filename = "file1";
+    private static FileOutputStream OUT_STREAM;
     private static IntUnaryOperator toEven = i -> i << 1;
     private static IntUnaryOperator toOdd = i -> (i << 1) + 1;
     private static Lock lock = new ReentrantLock();
@@ -26,7 +27,9 @@ public class main {
         // В случае бинарного формата для этого можно было бы исопльзовать тот факт, что
         // длина байтового представления
         // числа формата int всегда постоянна и равна 4.
-
+        
+        OUT_STREAM = new FileOutputStream(filename, true);
+                
         Thread odds = new Thread(newWriter(toOdd, "-odd"));
         Thread evens = new Thread(newWriter(toEven, "-even"));
         Thread reader = new Thread(newReader());
@@ -38,7 +41,7 @@ public class main {
 
     private static Runnable newWriter(IntUnaryOperator intUnaryOperator, String disc) {
         return () -> {
-            try (Writer ps = new OutputStreamWriter(new FileOutputStream(filename, true));
+            try (Writer ps = new OutputStreamWriter(OUT_STREAM);
                     Writer ps1 = new OutputStreamWriter(new FileOutputStream(filename + disc, true))) {
                 Random random = new Random();
                 while (true) {
@@ -47,15 +50,19 @@ public class main {
 //                    sleep(200);
                     String str = intUnaryOperator.applyAsInt(random.nextInt()) + "\n";
                     ps1.write(str);
-                    synchronized (lock) {
-                        ps.write(str);
-                    }
+                    write(ps, str);
 //                    ps.flush();
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         };
+    }
+
+    private static void write(Writer ps, String str) throws IOException {
+//        lock.lock();
+        ps.write(str);
+//        lock.unlock();
     }
 
     private static Runnable newReader() {
