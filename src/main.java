@@ -47,10 +47,10 @@ public class main {
 //                    sleep(200);
                     String str = intUnaryOperator.applyAsInt(random.nextInt()) + "\n";
                     ps1.write(str);
-                    lock.lock();
-                    ps.write(str);
-                    ps.flush();
-                    lock.unlock();
+                    synchronized (lock) {
+                        ps.write(str);
+                    }
+//                    ps.flush();
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
